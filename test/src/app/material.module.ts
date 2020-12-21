@@ -6,13 +6,16 @@ import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatDatepickerModule } from "@angular/material/datepicker";
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatSidenavModule } from '@angular/material/sidenav';
 
 
 @NgModule({
     imports: [MatButtonModule, MatIconModule, MatInputModule, MatFormFieldModule, 
-        MatDatepickerModule, MatNativeDateModule, MatCheckboxModule],
+        MatDatepickerModule, MatNativeDateModule, MatCheckboxModule,
+        MatSidenavModule],
     exports: [MatButtonModule, MatIconModule, MatInputModule, MatFormFieldModule, 
-        MatDatepickerModule, MatNativeDateModule, MatCheckboxModule]  
+        MatDatepickerModule, MatNativeDateModule, MatCheckboxModule,
+        MatSidenavModule]  
 })
 
 export class MaterialModule {}
