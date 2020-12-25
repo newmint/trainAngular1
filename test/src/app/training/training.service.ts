@@ -20,4 +20,7 @@ export class TrainingService {
         //slice create copy of that array
         return this.availableExercises.slice();
     }
+    getRunningExercise() {
+        return { ...this.runningExercise };
+    }
 }
