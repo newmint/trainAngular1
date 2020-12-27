@@ -1,17 +1,22 @@
+import { Injectable } from '@angular/core';
+import { AngularFireDatabase } from '@angular/fire/database';
 import { Subject } from 'rxjs/Subject';
 import { Exercise } from "./exercise.model";
+import { map } from 'rxjs/operators';
+import 'rxjs/add/operator/map';
 
+@Injectable()
 export class TrainingService {
     exerciseChanged = new Subject<Exercise>();
-    private availableExercises: Exercise[] = [
-        { id: 'crunches', name: 'Crunches', duration: 30, calories: 8 },
-        { id: 'touch-toes', name: 'Touch Toes', duration: 180, calories: 15 },
-        { id: 'side-lunges', name: 'Side Lunges', duration: 120, calories: 18 },
-        { id: 'burpees', name: 'Burpees', duration: 60, calories: 8 }
-    ];
+    exercisesChanged = new Subject<Exercise[]>();
+    private availableExercises: Exercise[] = [];
 
     private runningExercise: Exercise;
     private exercises: Exercise[] = [];
+
+    constructor(private db:AngularFireDatabase) {
+
+    }
 
     startExercise(selectedId: string) {
         this.runningExercise = this.availableExercises.find(ex => ex.id === selectedId);
@@ -24,18 +29,34 @@ export class TrainingService {
     }
     cancelExercise(progress:number) {
         this.exercises.push({
-            ...this.runningExercise, 
-            duration: this.runningExercise.duration * (progress/100), 
+            ...this.runningExercise,
+            duration: this.runningExercise.duration * (progress/100),
             calories: this.runningExercise.calories * (progress/100),
-            date: new Date(), 
+            date: new Date(),
             state: 'cancelled'});
         this.runningExercise = null;
         this.exerciseChanged.next(null);
 
     }
-    getAvailableExercises() {
-        //slice create copy of that array
-        return this.availableExercises.slice();
+    fetchAvailableExercises() {
+      this.db.list('availableExercise').snapshotChanges()
+        .map(valueArray => {
+
+          return valueArray.map(value=>{
+            return {
+              id: value.key,
+              // ...value.payload.val() as {}
+              name: value.payload.val()['name'],
+              calories: value.payload.val()['calories'],
+              duration: value.payload.val()['duration']
+
+            }
+          })
+        })
+        .subscribe((exercises: Exercise[]) => {
+          this.availableExercises = exercises;
+          this.exercisesChanged.next([...this.availableExercises]);
+        })
     }
     getRunningExercise() {
         return { ...this.runningExercise };
