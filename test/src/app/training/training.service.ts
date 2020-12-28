@@ -4,6 +4,7 @@ import { Subject } from 'rxjs/Subject';
 import { Exercise } from "./exercise.model";
 import { map } from 'rxjs/operators';
 import 'rxjs/add/operator/map';
+import { Subscription } from 'rxjs';
 
 @Injectable()
 export class TrainingService {
@@ -13,6 +14,9 @@ export class TrainingService {
 
     private availableExercises: Exercise[] = [];
     private runningExercise: Exercise;
+
+    private fbSubs: Subscription[] = [];
+
     constructor(private db:AngularFireDatabase) {
 
     }
@@ -38,7 +42,7 @@ export class TrainingService {
 
     }
     fetchAvailableExercises() {
-      this.db.list('availableExercise').snapshotChanges()
+      this.fbSubs.push(this.db.list('availableExercise').snapshotChanges()
         .map(valueArray => {
 
           return valueArray.map(value=>{
@@ -55,15 +59,15 @@ export class TrainingService {
         .subscribe((exercises: Exercise[]) => {
           this.availableExercises = exercises;
           this.exercisesChanged.next([...this.availableExercises]);
-        })
+        }));
     }
     getRunningExercise() {
         return { ...this.runningExercise };
     }
     fetchFinishExercises() {
-      this.db.list("finishedExercises").valueChanges().subscribe((finExercises:Exercise[])=>{
+      this.fbSubs.push(this.db.list("finishedExercises").valueChanges().subscribe((finExercises:Exercise[])=>{
         this.finishexercisesChange.next(finExercises);
-      });
+      }));
     }
 
     addDataToDatabase(exercise: Exercise) {
@@ -72,5 +76,9 @@ export class TrainingService {
       //จริงๆแล้วไม่ควรต้องทำนะ
       const param = JSON.parse(JSON.stringify(exercise));
       this.db.list("finishedExercises").push(param);
+    }
+
+    cancelSubscription() {
+      this.fbSubs.forEach(sub => sub.unsubscribe());
     }
 }
