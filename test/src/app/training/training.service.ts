@@ -23,12 +23,12 @@ export class TrainingService {
         this.exerciseChanged.next({...this.runningExercise});
     }
     completeExercise() {
-        this.exercises.push({...this.runningExercise, date: new Date(), state: 'completed'});
+        this.addDataToDatabase({...this.runningExercise, date: new Date(), state: 'completed'});
         this.runningExercise = null;
         this.exerciseChanged.next(null);
     }
     cancelExercise(progress:number) {
-        this.exercises.push({
+        this.addDataToDatabase({
             ...this.runningExercise,
             duration: this.runningExercise.duration * (progress/100),
             calories: this.runningExercise.calories * (progress/100),
@@ -63,5 +63,12 @@ export class TrainingService {
     }
     getAllExercises() {
         return this.exercises.slice();
+    }
+    addDataToDatabase(exercise: Exercise) {
+      
+      //วันที่ไม่มาด้วยเลยต้องทำแบบนี้ 
+      //จริงๆแล้วไม่ควรต้องทำนะ
+      const param = JSON.parse(JSON.stringify(exercise));
+      this.db.list("finishedExercises").push(param);
     }
 }
