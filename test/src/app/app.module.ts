@@ -3,6 +3,8 @@ import { NgModule } from '@angular/core';
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { AngularFireModule } from '@angular/fire';
+import { AngularFireDatabaseModule } from '@angular/fire/database';
+import { AngularFireAuthModule } from '@angular/fire/auth';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -16,7 +18,6 @@ import { TrainingService } from './training/training.service';
 import { environment } from '../environments/environment';
 import { UIService } from './shared/ui.service';
 import { AuthModule } from './auth/auth.module';
-import { TrainingModule } from './training/training.module';
 
 @NgModule({
   declarations: [
@@ -35,7 +36,9 @@ import { TrainingModule } from './training/training.module';
     ReactiveFormsModule,
     AngularFireModule.initializeApp(environment.firebase),
     AuthModule,
-    TrainingModule
+    //ใน ตัวอย่างมันต้อง add เพราะว่า trainingService มีการเรียกใช้ แต่ว่าอยู่ใน training ที่ทำ
+    //lazy load ไว้ทำให้ต้องมา add เพิ่มที่นี่ แต่ว่า ที่ทำมาไม่ error เลย comment ไว้
+    // AngularFireDatabaseModule,
   ],
   providers: [AuthService, TrainingService, UIService],
   bootstrap: [AppComponent]
