@@ -51,21 +51,26 @@ export class TrainingService {
       this.fbSubs.push(this.db.list('availableExercise').snapshotChanges()
         .map(valueArray => {
 
-          return valueArray.map(value=>{
-            return {
-              id: value.key,
-              // ...value.payload.val() as {}
-              name: value.payload.val()['name'],
-              calories: value.payload.val()['calories'],
-              duration: value.payload.val()['duration']
+          throw(new Error());
+          // return valueArray.map(value=>{
+          //   return {
+          //     id: value.key,
+          //     // ...value.payload.val() as {}
+          //     name: value.payload.val()['name'],
+          //     calories: value.payload.val()['calories'],
+          //     duration: value.payload.val()['duration']
 
-            }
-          })
+          //   }
+          // })
         })
         .subscribe((exercises: Exercise[]) => {
           this.uiService.loadingStateChanged.next(false);
           this.availableExercises = exercises;
           this.exercisesChanged.next([...this.availableExercises]);
+        },error=>{
+          this.uiService.loadingStateChanged.next(false);
+          this.uiService.showSnackbar("Fetch Exercise Fail, Try Later",null, 3000);
+          this.exercisesChanged.next(null);
         }));
     }
     getRunningExercise() {
