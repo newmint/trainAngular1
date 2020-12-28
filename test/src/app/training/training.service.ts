@@ -9,11 +9,10 @@ import 'rxjs/add/operator/map';
 export class TrainingService {
     exerciseChanged = new Subject<Exercise>();
     exercisesChanged = new Subject<Exercise[]>();
+    finishexercisesChange = new Subject<Exercise[]>();
+
     private availableExercises: Exercise[] = [];
-
     private runningExercise: Exercise;
-    private exercises: Exercise[] = [];
-
     constructor(private db:AngularFireDatabase) {
 
     }
@@ -61,9 +60,12 @@ export class TrainingService {
     getRunningExercise() {
         return { ...this.runningExercise };
     }
-    getAllExercises() {
-        return this.exercises.slice();
+    fetchFinishExercises() {
+      this.db.list("finishedExercises").valueChanges().subscribe((finExercises:Exercise[])=>{
+        this.finishexercisesChange.next(finExercises);
+      });
     }
+
     addDataToDatabase(exercise: Exercise) {
       
       //วันที่ไม่มาด้วยเลยต้องทำแบบนี้ 
