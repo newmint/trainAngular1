@@ -5,8 +5,6 @@ import { AngularFireAuth } from '@angular/fire/auth';
 import { AuthData } from "./auth-data.model";
 import { User } from "./user.model";
 
-//ทำให้ service สามารถถูก inject ได้
-//ในที่นี้ให้ router   inject
 @Injectable()
 export class AuthService {
     authChange = new Subject<boolean>();
@@ -28,11 +26,18 @@ export class AuthService {
     }
 
     login(authData: AuthData) {
-        this.user = {
-            email: authData.email,
-            userId: Math.round(Math.random()*10000).toString()
-        }
-        this.authSuccessfully();
+        this.afAuth.signInWithEmailAndPassword(authData.email, authData.password)
+        .then(result=>{
+            console.log("login ok");
+            console.log(result);
+            this.authSuccessfully();
+        })
+        .catch(error=>{
+            
+        console.log(authData.email);
+            console.log("login fail");
+            console.log(error);
+        })
     }
 
     logout() {
