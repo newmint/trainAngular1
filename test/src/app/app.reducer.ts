@@ -1,28 +1,18 @@
-//model โครงสร้างขึ้นอยู่กับว่าเราจะใช้ทำอะไร ตามแต่ต้องการ
+import { ActionReducerMap, createFeatureSelector, createSelector } from '@ngrx/store';
+import * as fromUI from './shared/ui.reducer';
+
 export interface State {
-    isLoading: boolean;
+    ui: fromUI.State;
 }
 
-//object
-const initialState: State = {
-    isLoading: false
-};
-
-export function appReducer(state = initialState, action) {
-
-    //action ต้องมี type 
-    switch(action.type) {
-        case 'START_LOADING':
-            return {
-                isLoading: true
-            };
-        case 'STOP_LOADING':
-            return {
-                isLoading: false
-            };
-        default :
-            return state;
-    }
-
-    return state;
+export const reducers: ActionReducerMap<State> = {
+    ui: fromUI.uiReducer
 }
+
+//เอาไว้สร้าง method getUIState ที่จะให้
+//ข้อมูลจาก บรรทัดที่ 5 ด้วย reducer บรรทัดที่ 9 อย่างรวดเร็วโดยไม่ต้องไปไล่หา
+//ถ้ามีเยอะๆ จะเห็นผลชัด
+export const getUIState = createFeatureSelector<fromUI.State>('ui');
+
+//เอาไว้สร้าง method getIsLoading ที่จะ return isLoading จาก UI ออกมาให้
+export const getIsLoading = createSelector(getUIState, fromUI.getIsLoading);
