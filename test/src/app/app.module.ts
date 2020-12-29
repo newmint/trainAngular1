@@ -18,6 +18,8 @@ import { TrainingService } from './training/training.service';
 import { environment } from '../environments/environment';
 import { UIService } from './shared/ui.service';
 import { AuthModule } from './auth/auth.module';
+import { StoreModule } from '@ngrx/store';
+import { appReducer } from './app.reducer'
 
 @NgModule({
   declarations: [
@@ -39,6 +41,7 @@ import { AuthModule } from './auth/auth.module';
     //ใน ตัวอย่างมันต้อง add เพราะว่า trainingService มีการเรียกใช้ แต่ว่าอยู่ใน training ที่ทำ
     //lazy load ไว้ทำให้ต้องมา add เพิ่มที่นี่ แต่ว่า ที่ทำมาไม่ error เลย comment ไว้
     // AngularFireDatabaseModule,
+    StoreModule.forRoot({ ui: appReducer })
   ],
   providers: [AuthService, TrainingService, UIService],
   bootstrap: [AppComponent]
