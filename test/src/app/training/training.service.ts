@@ -8,6 +8,7 @@ import { Subscription } from 'rxjs';
 import { UIService } from '../shared/ui.service';
 import { Store } from '@ngrx/store';
 import * as UI from '../shared/ui.actions';
+import { take } from 'rxjs/operators'
 
 //เปลี่ยนมาเรียก จาก training แทน ตัวเก่าไม่กระทบเพราะ State extends มาจาก app.reducer
 import * as fromTraining from './training.reducer';
@@ -38,22 +39,25 @@ export class TrainingService {
         this.store.dispatch(new Training.StartTraining(selectedId));
     }
     completeExercise() {
-        this.addDataToDatabase({...this.runningExercise, date: new Date(), state: 'completed'});
-        // this.runningExercise = null;
-        // this.exerciseChanged.next(null);
+      //เค้าว่าต้องใส่ take ไม่งั้นจะได้มาเยอะไป 
+      this.store.select(fromTraining.getActiveTraining).pipe(take(1)).subscribe(ex=>{
+        
+        this.addDataToDatabase({...ex, date: new Date(), state: 'completed'});
         this.store.dispatch(new Training.StopTraining);
+      })
     }
     cancelExercise(progress:number) {
+      //เค้าว่าต้องใส่ take ไม่งั้นจะได้มาเยอะไป 
+      this.store.select(fromTraining.getActiveTraining).pipe(take(1)).subscribe(ex=>{
+        
         this.addDataToDatabase({
-            ...this.runningExercise,
-            duration: this.runningExercise.duration * (progress/100),
-            calories: this.runningExercise.calories * (progress/100),
+            ...ex,
+            duration: ex.duration * (progress/100),
+            calories: ex.calories * (progress/100),
             date: new Date(),
             state: 'cancelled'});
-        // this.runningExercise = null;
-        // this.exerciseChanged.next(null);
         this.store.dispatch(new Training.StopTraining);
-
+      })
     }
     fetchAvailableExercises() {
 
@@ -88,9 +92,7 @@ export class TrainingService {
           this.exercisesChanged.next(null);
         }));
     }
-    getRunningExercise() {
-        return { ...this.runningExercise };
-    }
+    
     fetchFinishExercises() {
       this.fbSubs.push(this.db.list("finishedExercises").valueChanges().subscribe((finExercises:Exercise[])=>{
         // this.finishexercisesChange.next(finExercises);
