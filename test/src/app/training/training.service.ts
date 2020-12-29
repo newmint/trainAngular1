@@ -6,6 +6,9 @@ import { map } from 'rxjs/operators';
 import 'rxjs/add/operator/map';
 import { Subscription } from 'rxjs';
 import { UIService } from '../shared/ui.service';
+import { Store } from '@ngrx/store';
+import * as UI from '../shared/ui.actions';
+import * as fromRoot from '../app.reducer';
 
 @Injectable()
 export class TrainingService {
@@ -19,7 +22,8 @@ export class TrainingService {
     private fbSubs: Subscription[] = [];
 
     constructor(private db:AngularFireDatabase,
-                private uiService: UIService
+                private uiService: UIService,
+                private store: Store<fromRoot.State>
       ) {
 
     }
@@ -46,7 +50,8 @@ export class TrainingService {
     }
     fetchAvailableExercises() {
 
-      this.uiService.loadingStateChanged.next(true);
+      // this.uiService.loadingStateChanged.next(true);
+      this.store.dispatch(new UI.StartLoading);
 
       this.fbSubs.push(this.db.list('availableExercise').snapshotChanges()
         .map(valueArray => {
@@ -64,11 +69,13 @@ export class TrainingService {
           })
         })
         .subscribe((exercises: Exercise[]) => {
-          this.uiService.loadingStateChanged.next(false);
+          // this.uiService.loadingStateChanged.next(false);
+          this.store.dispatch(new UI.StopLoading);
           this.availableExercises = exercises;
           this.exercisesChanged.next([...this.availableExercises]);
         },error=>{
-          this.uiService.loadingStateChanged.next(false);
+          // this.uiService.loadingStateChanged.next(false);
+          this.store.dispatch(new UI.StopLoading);
           this.uiService.showSnackbar("Fetch Exercise Fail, Try Later",null, 3000);
           this.exercisesChanged.next(null);
         }));
