@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { Subject } from 'rxjs/Subject';
 import { Router } from '@angular/router';
 import { AngularFireAuth } from '@angular/fire/auth';
 import { AuthData } from "./auth-data.model";
@@ -10,12 +9,11 @@ import { Store } from '@ngrx/store';
 
 import * as fromRoot from '../app.reducer';
 import * as UI from '../shared/ui.actions';
+import * as Auth from '../auth/auth.actions';
 
 @Injectable()
 export class AuthService {
-    authChange = new Subject<boolean>();
     private user: User;
-    private isAuthenticated = false;
 
     constructor(private router: Router,
                 private afAuth: AngularFireAuth,
@@ -28,15 +26,12 @@ export class AuthService {
         this.afAuth.authState.subscribe(user => {
             if(user) {
 
-                this.isAuthenticated = true;
-                this.authChange.next(true);
+                this.store.dispatch(new Auth.SETAUTHENTICATED);
                 this.router.navigate(['/training']);
             }else{
 
                 this.trainingService.cancelSubscription();
-                this.user = null;
-                this.authChange.next(false);
-                this.isAuthenticated = false;
+                this.store.dispatch(new Auth.SETUNAUTHENTICATED);
                 this.router.navigate(['/login']);
             }
         })
@@ -77,11 +72,6 @@ export class AuthService {
     getUser() {
         //ส่ง clone/copy ของ user ไป ป้องกันการถูกแก้ไข
         return {...this.user};
-    }
-
-    isAuth() {
-        // return this.user != null;
-        return this.isAuthenticated;
     }
 
 }

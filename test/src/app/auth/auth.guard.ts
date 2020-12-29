@@ -1,28 +1,25 @@
 import { Injectable } from '@angular/core';
 import { RouterStateSnapshot, ActivatedRouteSnapshot, CanActivate, Router, CanLoad, Route } from '@angular/router';
-import { AuthService } from './auth.service';
-
-//ตามความเข้าใจคือ injectable ให้ตัวอื่นมา แจมได้
-//ในที่นี้อยากใช้ authService เลยต้องให้มันถูก inject
+import { Store } from '@ngrx/store';
+import { take } from 'rxjs/operators'
+import * as fromRoot from '../app.reducer'
 @Injectable()
 export class AuthGuard implements CanActivate, CanLoad {
 
-    constructor(private authService: AuthService,
-                private router: Router) {}
+    constructor(
+                private router: Router,
+                private store: Store<fromRoot.State>
+                ) {}
 
     canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
-        if(this.authService.isAuth()) {
-            return true;
-        }else{
-            this.router.navigate(['/login']);
-        }
+        //ใน lecture มันใช้ไม่ได้ต้องมีต่อท้าย
+        // return this.store.select(fromRoot.getIsAuthenticated).pipe(take(1));
+        return this.store.select(fromRoot.getIsAuthenticated);
     }
 
     canLoad(route: Route) {
-        if(this.authService.isAuth()) {
-            return true;
-        }else{
-            this.router.navigate(['/login']);
-        }
+        //ใน lecture มันใช้ไม่ได้ต้องมีต่อท้าย
+        // return this.store.select(fromRoot.getIsAuthenticated).pipe(take(1));
+        return this.store.select(fromRoot.getIsAuthenticated);
     }
 }
