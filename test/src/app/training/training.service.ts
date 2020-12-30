@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import { AngularFireDatabase } from '@angular/fire/database';
-import { Subject } from 'rxjs/Subject';
 import { Exercise } from "./exercise.model";
 import { map } from 'rxjs/operators';
 import 'rxjs/add/operator/map';
@@ -16,12 +15,6 @@ import * as Training from './training.actions';
 
 @Injectable()
 export class TrainingService {
-    exerciseChanged = new Subject<Exercise>();
-    exercisesChanged = new Subject<Exercise[]>();
-    finishexercisesChange = new Subject<Exercise[]>();
-
-    private availableExercises: Exercise[] = [];
-    private runningExercise: Exercise;
 
     private fbSubs: Subscription[] = [];
 
@@ -80,16 +73,11 @@ export class TrainingService {
           })
         })
         .subscribe((exercises: Exercise[]) => {
-          // this.uiService.loadingStateChanged.next(false);
           this.store.dispatch(new UI.StopLoading);
-          // this.availableExercises = exercises;
-          // this.exercisesChanged.next([...this.availableExercises]);
           this.store.dispatch(new Training.SetAvailableTrainings(exercises));
         },error=>{
-          // this.uiService.loadingStateChanged.next(false);  
           this.store.dispatch(new UI.StopLoading);
           this.uiService.showSnackbar("Fetch Exercise Fail, Try Later",null, 3000);
-          this.exercisesChanged.next(null);
         }));
     }
     
